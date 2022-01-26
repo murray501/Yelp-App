@@ -1,28 +1,18 @@
-import {
-  useQuery,
-  gql
-} from "@apollo/client";
-
-const BASIC = gql`
-    query Basic {
-        business(id: "garaje-san-francisco") {
-            name
-            id
-            alias
-            rating
-            url
-        }
-    }
-`
+import React from "react";
+import { Routes, Route } from "react-router-dom";
+import Home from "./pages/Home";
+import Search from "./pages/Search";
+import Events from "./pages/Events";
 
 function App() {
-  const { loading, error, data } = useQuery(BASIC);
-
-  if (loading) return <p>Loading...</p>;
-  if (error) return <p>Error</p>;
-
   return (
-    <pre>{JSON.stringify(data)}</pre>
+    <div>
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="/search" element={<Search />} />
+        <Route path="/events" element={<Events />} />
+      </Routes>
+    </div>
   );
 }
 
