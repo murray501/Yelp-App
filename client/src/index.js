@@ -13,7 +13,7 @@ import {
 const token = localStorage.getItem('token');
 const cache = new InMemoryCache();
 const client = new ApolloClient({
-  uri: 'https://cors-anywhere.herokuapp.com/https://api.yelp.com/v3/graphql',
+  uri: 'http://localhost:8080/https://api.yelp.com/v3/graphql',
   headers: {
         authorization: token ? `Bearer ${token}` : "",
         'Accept-Language': 'en-US',
