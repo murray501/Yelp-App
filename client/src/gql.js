@@ -7,6 +7,9 @@ export const BasicSearch = gql`
             business {
                 name
                 url
+                photos
+                rating
+                review_count
             }
         }
     }    
