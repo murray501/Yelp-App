@@ -5,21 +5,34 @@ import { useQuery } from "@apollo/client";
 import { loadJSON, saveJSON} from "./../utils";
 
 export default function Search () {
-    const [key, setKey] = useState();
+    const [terms, setTerms] = useState();
     const [data, setData] = useState();
     const [showProp, setShowProp] = useState(<></>);
+    const [page, setPage] = useState();
 
-    const search = (term, location, limit) => {
-        let newkey = JSON.stringify({term: term, location: location, limit: limit});
-        let stored= loadJSON(newkey);
+    const search = (term, location, limit, offset) => {
+        let newTerms = {term: term, location: location, limit: limit, offset: offset}
+        let stored= loadJSON(JSON.stringify(newTerms));
+        
         if (stored) {
-            setKey(newkey);
+            setTerms(newTerms);
             setData(stored);
         } else {
-            setShowProp(<Query term={term} location={location} limit={limit} />)
+            setShowProp(<Query newTerms={newTerms}/>)
         }
     }
 
+    useEffect(() => {
+        if (terms) {
+            /*
+            const {term, location, limit, _} = terms;
+            const offset = limit * page;
+            search(term, location, limit, offset);
+            */
+        }
+    }, [page])
+
+   
     return (
         <>
             <SearchForm onSearch={search} />
@@ -27,20 +40,16 @@ export default function Search () {
         </>
     )
     
-    function Query({term, location, limit}) { 
-        const {loading, error, data} = useQuery(BasicSearch, {variables: {term, location, limit}});
+    function Query({newTerms}) { 
+        const {term, location, limit, offset} = newTerms;
+        const {loading, error, data} = useQuery(BasicSearch, {variables: {term, location, limit, offset}});
         
         if (loading) return <p>Loading...</p>;
         if (error) return <p>Error</p>;
     
-        let key = JSON.stringify({term: term, location: location, limit: limit});
-        setKey(key);
+        setTerms(newTerms);
         setData(data);
-        saveJSON(key, data);
-
-        return (
-            <Show />
-        )
+        saveJSON(JSON.stringify(newTerms), data);
     }
 
     function Show() {
@@ -48,14 +57,53 @@ export default function Search () {
             <>
                 <div class="notification is-primary">
                     <button class="delete"></button>
-                    Search Variables: {key} 
+                    Search Variables: {JSON.stringify(terms)} 
+                    <br />
+                    Total: {data.search.total}
                 </div>
                 <section>
                     <div class="columns is-multiline">
                         {data.search.business.map((chunk) => <Business chunk={chunk} />)}
                     </div>
-                </section>
+                    <Pagenation />
+                </section>                
             </>
+        )
+    }
+
+    function Pagenation() {
+        const {term, location, limit, offset} = terms;
+        const total = data.search.total;
+        const numPages = Math.ceil(total / limit);
+    
+        const nextPage = () => {
+            const nextpage = page + 1 >= numPages ? numPages - 1 : page + 1
+            setPage(nextpage);
+        }
+
+        const prevPage = () => {
+            const prevpage = page - 1 < 0 ? 0 : page - 1
+            setPage(prevpage);
+        }
+
+        const setCurrent = i => {
+            setPage(i);
+        }
+
+        return (
+        <nav class="pagination is-small" role="navigation" aria-label="pagination">
+            <a class="pagination-previous" onClick={prevPage}>Previous</a>
+            <a class="pagination-next" onClick={nextPage}>Next page</a>
+            <ul class="pagination-list">
+                {[...Array(numPages).keys()].map (i => 
+                    <li>
+                        <a class={"pagination-link" + (i === page ? " is-current" : '')}
+                            onClick={() => setCurrent(i)}
+                            >{i + 1}</a>
+                    </li>
+                )}
+            </ul>
+        </nav>
         )
     }
 }
@@ -69,7 +117,7 @@ function SearchForm({onSearch = f => f}) {
         e.preventDefault();
         if (termProps.value || locationProps.value) {
             const limit = parseInt(limitProps.value);
-            onSearch(termProps.value, locationProps.value, limit);
+            onSearch(termProps.value, locationProps.value, limit ? limit : 20, 0);
         }
         resetTerm();
         resetLocation();
@@ -98,22 +146,6 @@ function SearchForm({onSearch = f => f}) {
                 </div>
             </div>
         </form>
-    )
-}
-
-
-
-function Query({term, location, limit}) { 
-    const {loading, error, data} = useQuery(BasicSearch, {variables: {term, location, limit}});
-    
-    if (loading) return <p>Loading...</p>;
-    if (error) return <p>Error</p>;
-
-    let key = JSON.stringify({term: term, location: location, limit: limit});
-    saveJSON(key, data);
-    
-    return (
-        <Show key={key} data={data} />
     )
 }
 
