@@ -5,23 +5,57 @@ import { useQuery } from "@apollo/client";
 import { loadJSON, saveJSON} from "./../utils";
 
 export default function Search () {
-    const [showProp, setShowProp] = useState();
+    const [key, setKey] = useState();
+    const [data, setData] = useState();
+    const [showProp, setShowProp] = useState(<></>);
 
     const search = (term, location, limit) => {
-        const result = <Show term={term} location={location} limit={limit} />
-        setShowProp(result);         
+        let newkey = JSON.stringify({term: term, location: location, limit: limit});
+        let stored= loadJSON(newkey);
+        if (stored) {
+            setKey(newkey);
+            setData(stored);
+        } else {
+            setShowProp(<Query term={term} location={location} limit={limit} />)
+        }
     }
 
-    if (showProp) {
-        return (
-            <>                
-                <SearchForm onSearch={search} />
-                {showProp}
-            </>
-        )
-    } else {
-        return (
+    return (
+        <>
             <SearchForm onSearch={search} />
+            {data ? <Show /> : showProp}
+        </>
+    )
+    
+    function Query({term, location, limit}) { 
+        const {loading, error, data} = useQuery(BasicSearch, {variables: {term, location, limit}});
+        
+        if (loading) return <p>Loading...</p>;
+        if (error) return <p>Error</p>;
+    
+        let key = JSON.stringify({term: term, location: location, limit: limit});
+        setKey(key);
+        setData(data);
+        saveJSON(key, data);
+
+        return (
+            <Show />
+        )
+    }
+
+    function Show() {
+        return (
+            <>
+                <div class="notification is-primary">
+                    <button class="delete"></button>
+                    Search Variables: {key} 
+                </div>
+                <section>
+                    <div class="columns is-multiline">
+                        {data.search.business.map((chunk) => <Business chunk={chunk} />)}
+                    </div>
+                </section>
+            </>
         )
     }
 }
@@ -34,8 +68,7 @@ function SearchForm({onSearch = f => f}) {
     const submit = e => {
         e.preventDefault();
         if (termProps.value || locationProps.value) {
-            let limit = parseInt(limitProps.value);
-            if (limit === NaN) limit = 20;
+            const limit = parseInt(limitProps.value);
             onSearch(termProps.value, locationProps.value, limit);
         }
         resetTerm();
@@ -69,31 +102,23 @@ function SearchForm({onSearch = f => f}) {
 }
 
 
-function Show({term, location, limit}) { 
-    
-    const {loading, error, data} = useQuery(BasicSearch, {variables: {term, location, limit}});
 
+function Query({term, location, limit}) { 
+    const {loading, error, data} = useQuery(BasicSearch, {variables: {term, location, limit}});
+    
     if (loading) return <p>Loading...</p>;
     if (error) return <p>Error</p>;
 
+    let key = JSON.stringify({term: term, location: location, limit: limit});
+    saveJSON(key, data);
+    
     return (
-        <>
-            <div class="notification is-primary">
-                <button class="delete"></button>
-                Search Variables: <strong>{term}</strong>,  location: <strong>{location}</strong>,  limit: <strong>{limit}</strong>
-            </div>
-            <section>
-                <div class="columns is-multiline">
-                    {data.search.business.map((chunk) => <Business chunk={chunk} />)}
-                </div>
-            </section>
-        </>
+        <Show key={key} data={data} />
     )
 }
 
 function Business({chunk}) {
     const {name, url, photos, rating, review_count} = chunk;
-
     return (
         <div class="column is-3-desktop box">
             <article class="media">
