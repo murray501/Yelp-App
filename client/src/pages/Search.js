@@ -10,8 +10,8 @@ export default function Search () {
     const [showProp, setShowProp] = useState(<></>);
     const [page, setPage] = useState();
 
-    const search = (term, location, limit, offset) => {
-        let newTerms = {term: term, location: location, limit: limit, offset: offset}
+    const search = (term, location, offset) => {
+        let newTerms = {term: term, location: location, offset: offset}
         let stored= loadJSON(JSON.stringify(newTerms));
         
         if (stored) {
@@ -22,27 +22,28 @@ export default function Search () {
         }
     }
 
+    /*
     useEffect(() => {
         if (terms) {
-            /*
+            
             const {term, location, limit, _} = terms;
             const offset = limit * page;
             search(term, location, limit, offset);
-            */
+            
         }
     }, [page])
-
+    */
    
     return (
         <>
             <SearchForm onSearch={search} />
-            {data ? <Show /> : showProp}
+            {data ? <Show terms = {terms} data={data}/> : showProp}
         </>
     )
     
     function Query({newTerms}) { 
-        const {term, location, limit, offset} = newTerms;
-        const {loading, error, data} = useQuery(BasicSearch, {variables: {term, location, limit, offset}});
+        const {term, location, offset} = newTerms;
+        const {loading, error, data} = useQuery(BasicSearch, {variables: {term, location, offset}});
         
         if (loading) return <p>Loading...</p>;
         if (error) return <p>Error</p>;
@@ -50,62 +51,28 @@ export default function Search () {
         setTerms(newTerms);
         setData(data);
         saveJSON(JSON.stringify(newTerms), data);
+        return <Show terms={newTerms} data={data} />;
     }
+}
 
-    function Show() {
-        return (
-            <>
-                <div class="notification is-primary">
-                    <button class="delete"></button>
-                    Search Variables: {JSON.stringify(terms)} 
-                    <br />
-                    Total: {data.search.total}
+// --- outside --
+function Show({terms, data}) {
+    return (
+        <>
+            <div class="notification is-primary">
+                <button class="delete"></button>
+                Search Variables: {JSON.stringify(terms)} 
+                <br />
+                Total: {data.search.total}
+            </div>
+            <section>
+                <div class="columns is-multiline">
+                    {data.search.business.map((chunk) => <Business chunk={chunk} />)}
                 </div>
-                <section>
-                    <div class="columns is-multiline">
-                        {data.search.business.map((chunk) => <Business chunk={chunk} />)}
-                    </div>
-                    <Pagenation />
-                </section>                
-            </>
-        )
-    }
-
-    function Pagenation() {
-        const {term, location, limit, offset} = terms;
-        const total = data.search.total;
-        const numPages = Math.ceil(total / limit);
-    
-        const nextPage = () => {
-            const nextpage = page + 1 >= numPages ? numPages - 1 : page + 1
-            setPage(nextpage);
-        }
-
-        const prevPage = () => {
-            const prevpage = page - 1 < 0 ? 0 : page - 1
-            setPage(prevpage);
-        }
-
-        const setCurrent = i => {
-            setPage(i);
-        }
-
-        return (
-        <nav class="pagination is-small" role="navigation" aria-label="pagination">
-            <a class="pagination-previous" onClick={prevPage}>Previous</a>
-            <a class="pagination-next" onClick={nextPage}>Next page</a>
-            <ul class="pagination-list">
-                {[...Array(numPages).keys()].map (i => 
-                    <li>
-                        <a class={"pagination-link" + (i === page ? " is-current" : '')}
-                            onClick={() => setCurrent(i)}
-                            >{i + 1}</a>
-                    </li>
-                )}
-            </ul>
-        </nav>
-        )
-    }
+                <Pagenation total={data.search.total} />
+            </section>                
+        </>
+    )
 }
 
 function SearchForm({onSearch = f => f}) {
@@ -117,7 +84,7 @@ function SearchForm({onSearch = f => f}) {
         e.preventDefault();
         if (termProps.value || locationProps.value) {
             const limit = parseInt(limitProps.value);
-            onSearch(termProps.value, locationProps.value, limit ? limit : 20, 0);
+            onSearch(termProps.value, locationProps.value, 0);
         }
         resetTerm();
         resetLocation();
@@ -180,4 +147,39 @@ function ShowStars({rating}) {
     return (
         <img src={path} />
     )  
+}
+
+function Pagenation({total}) {
+    const limit = 20;
+    const numPages = Math.ceil(total / limit);
+
+    const nextPage = () => {
+        //const nextpage = page + 1 >= numPages ? numPages - 1 : page + 1
+        //setPage(nextpage);
+    }
+
+    const prevPage = () => {
+        //const prevpage = page - 1 < 0 ? 0 : page - 1
+        //setPage(prevpage);
+    }
+
+    const setCurrent = i => {
+        //setPage(i);
+    }
+
+    return (
+    <nav class="pagination is-small" role="navigation" aria-label="pagination">
+        <a class="pagination-previous" onClick={prevPage}>Previous</a>
+        <a class="pagination-next" onClick={nextPage}>Next page</a>
+        <ul class="pagination-list">
+            {[...Array(numPages).keys()].map (i => 
+                <li>
+                    <a class={"pagination-link" + (i === 0 ? " is-current" : '')}
+                        onClick={() => setCurrent(i)}
+                        >{i + 1}</a>
+                </li>
+            )}
+        </ul>
+    </nav>
+    )
 }
