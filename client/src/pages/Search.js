@@ -128,12 +128,24 @@ function Business({chunk}) {
                 <div class="media-content">
                     <a href={url}>{name}</a>
                     <p class="content is-small">
-                        rating: {rating}
+                        <ShowStars rating={rating} />
                         <br />
-                        review_count: {review_count}
+                        Based on {review_count} reviews
                     </p>
                 </div>
             </article>
         </div>
     )
+}
+
+function ShowStars({rating}) {
+    const valueFloat = parseFloat(rating);
+    const valueInt = parseInt(rating);
+    const prefix = "./yelp_stars/small/small_"
+    const postfix = ".png"
+    const infix = valueInt === valueFloat ? rating : `${valueInt}_half`
+    const path = prefix + infix + postfix
+    return (
+        <img src={path} />
+    )  
 }
