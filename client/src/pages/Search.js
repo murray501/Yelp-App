@@ -5,8 +5,8 @@ import { useQuery } from "@apollo/client";
 import { loadJSON, saveJSON} from "./../utils";
 import { Context } from "./../App";
 
-export default function Search () {
-    const {currentTerms, setCurrentTerms, currentData, setCurrentData, page, setPage} = useContext(Context);
+export default function Search ({goDetail = f => f}) {
+    const {currentTerms, setCurrentTerms, currentData, setCurrentData, page, setPage, tab, setTab} = useContext(Context);
     const limit = 20;
     
     const search = (term, location, offset) => {
@@ -22,7 +22,7 @@ export default function Search () {
             setCurrentData(null);
         }
     }
-   
+
     useEffect(() => {
         if (currentTerms) {
             const {term, location, _} = currentTerms;
@@ -102,6 +102,31 @@ export default function Search () {
         </nav>
         )
     }
+
+    function Business({chunk}) {
+        const {id, name, url, photos, rating, review_count} = chunk;
+        return (
+            <div class="column is-3-desktop box">
+                <article class="media">
+                    <aside class="media-left">
+                        <img src={photos} width="80" />
+                    </aside>
+                    <div class="media-content">
+                        <a href={url}>{name}</a>
+                        <p class="content is-small">
+                            <ShowStars rating={rating} />
+                            <br />
+                            Based on {review_count} reviews
+                            <br />
+                            <a onClick={() => goDetail(chunk)}>Detail</a>
+                            <span>·</span>
+                            <a>Review</a>
+                        </p>
+                    </div>
+                </article>
+            </div>
+        )
+    }
 }
 
 // --- outside ---
@@ -137,26 +162,7 @@ function SearchForm({onSearch = f => f}) {
     )
 }
 
-function Business({chunk}) {
-    const {name, url, photos, rating, review_count} = chunk;
-    return (
-        <div class="column is-3-desktop box">
-            <article class="media">
-                <aside class="media-left">
-                    <img src={photos} width="80" />
-                </aside>
-                <div class="media-content">
-                    <a href={url}>{name}</a>
-                    <p class="content is-small">
-                        <ShowStars rating={rating} />
-                        <br />
-                        Based on {review_count} reviews
-                    </p>
-                </div>
-            </article>
-        </div>
-    )
-}
+
 
 function ShowStars({rating}) {
     const valueFloat = parseFloat(rating);

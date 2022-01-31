@@ -5,6 +5,7 @@ export const BasicSearch = gql`
         search(term: $term, location: $location, offset: $offset) {
             total
             business {
+                id
                 name
                 url
                 photos
@@ -13,4 +14,30 @@ export const BasicSearch = gql`
             }
         }
     }    
+`
+
+export const BusinessSearch = gql`
+    query BusinessSearch($id: String) {
+        business(id: $id) {
+            is_claimed
+            is_closed
+            display_phone
+            price
+            categories {
+                title
+                alias
+            }
+            location {
+                formatted_address
+            }
+            coordinates {
+                latitude
+                longitude
+            }
+            hours {
+                hours_type
+                is_open_now
+            }
+        }
+    }
 `
