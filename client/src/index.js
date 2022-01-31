@@ -1,7 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import App from './App';
-import { BrowserRouter as Router } from "react-router-dom";
+import {App} from './App';
 import "bulma/css/bulma.css";
 
 import {
@@ -23,13 +22,11 @@ const client = new ApolloClient({
 
 ReactDOM.render(
   <ApolloProvider client={client}>
-    <Router>
       <section class="section">
         <div class="container">
           <App />
         </div>
       </section>
-    </Router>
   </ApolloProvider>,
   document.getElementById('root')
 );

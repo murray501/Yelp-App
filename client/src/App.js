@@ -1,19 +1,17 @@
-import React from "react";
-import { Routes, Route } from "react-router-dom";
-import Home from "./pages/Home";
+import React, {useState, createContext} from "react";
 import Search from "./pages/Search";
-import Events from "./pages/Events";
 
-function App() {
+export const Context = createContext();
+
+export function App() {
+  const [currentTerms, setCurrentTerms] = useState();
+  const [currentData, setCurrentData] = useState();
+  const [page, setPage] = useState(0);
+
   return (
-    <div>
-      <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/search" element={<Search />} />
-        <Route path="/events" element={<Events />} />
-      </Routes>
-    </div>
+    <Context.Provider value={{currentTerms, setCurrentTerms, currentData, setCurrentData, page, setPage}}>
+      <Search />
+    </Context.Provider>
   );
 }
 
-export default App;

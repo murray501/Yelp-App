@@ -1,13 +1,12 @@
-import React, {useState, useEffect} from "react";
+import React, {useState, useEffect, useContext} from "react";
 import { useInput } from "./../hooks";
 import { BasicSearch} from "./../gql";
 import { useQuery } from "@apollo/client";
 import { loadJSON, saveJSON} from "./../utils";
+import { Context } from "./../App";
 
 export default function Search () {
-    const [currentTerms, setCurrentTerms] = useState();
-    const [currentData, setCurrentData] = useState();
-    const [page, setPage] = useState(0);
+    const {currentTerms, setCurrentTerms, currentData, setCurrentData, page, setPage} = useContext(Context);
     const limit = 20;
     
     const search = (term, location, offset) => {
