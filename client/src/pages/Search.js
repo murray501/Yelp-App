@@ -2,10 +2,10 @@ import React, {useState, useEffect, useContext} from "react";
 import { useInput } from "./../hooks";
 import { BasicSearch} from "./../gql";
 import { useQuery } from "@apollo/client";
-import { loadJSON, saveJSON} from "./../utils";
+import { loadJSON, saveJSON, ShowStars} from "./../utils";
 import { Context } from "./../App";
 
-export default function Search ({goDetail = f => f}) {
+export default function Search ({changeTab = f => f}) {
     const {currentTerms, setCurrentTerms, currentData, setCurrentData, page, setPage, tab, setTab} = useContext(Context);
     const limit = 20;
     
@@ -118,9 +118,9 @@ export default function Search ({goDetail = f => f}) {
                             <br />
                             Based on {review_count} reviews
                             <br />
-                            <a onClick={() => goDetail(chunk)}>Detail</a>
+                            <a onClick={() => changeTab(chunk, "Detail")}>Detail</a>
                             <span>·</span>
-                            <a>Review</a>
+                            <a onClick={() => changeTab(chunk, "Review")}>Review</a>
                         </p>
                     </div>
                 </article>
@@ -163,15 +163,3 @@ function SearchForm({onSearch = f => f}) {
 }
 
 
-
-function ShowStars({rating}) {
-    const valueFloat = parseFloat(rating);
-    const valueInt = parseInt(rating);
-    const prefix = "./yelp_stars/small/small_"
-    const postfix = ".png"
-    const infix = valueInt === valueFloat ? rating : `${valueInt}_half`
-    const path = prefix + infix + postfix
-    return (
-        <img src={path} />
-    )  
-}

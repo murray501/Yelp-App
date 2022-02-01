@@ -12,15 +12,26 @@ export function App() {
   const [tab, setTab] = useState("Search");
   const [chunk, setChunk] = useState();
 
-  const goDetail = (_chunk) => {
+  const changeTab = (_chunk, _tab) => {
     setChunk(_chunk);
-    setTab("Detail");
+    setTab(_tab);
   }
+
+  const OnTabChange = (tname) => {
+    setTab(tname);
+  } 
 
   return (
     <Context.Provider value={{currentTerms, setCurrentTerms, currentData, setCurrentData, page, setPage, tab, setTab}}>
-      <Tabs />
-      { tab === "Search" ? <Search goDetail={goDetail}/> : tab === "Detail" ? <Detail chunk={chunk}/> : <Reviews /> }
+      <nav class="level">
+        <div class="level-item">
+          <Tabs />
+        </div>
+        <div class="level-right">
+          <ShowLogo />
+        </div>
+      </nav>
+      { tab === "Search" ? <Search changeTab={changeTab}/> : tab === "Detail" ? <Detail chunk={chunk}/> : <Reviews chunk={chunk}/> }
     </Context.Provider>
   );
 
@@ -29,10 +40,17 @@ export function App() {
     return (
     <div class="tabs">
       <ul>
-        {tabs.map (tname => <li class={(tname === tab) ? 'is-active' : ''}><a>{tname}</a></li>)}
+        {tabs.map (tname => <li class={(tname === tab) ? 'is-active' : ''}><a onClick={() => OnTabChange(tname)}>{tname}</a></li>)}
       </ul>
     </div>
     )
   }
+}
+
+function ShowLogo() {
+  const path = "./yelp_logo/yelp_logo.png"
+  return (
+      <a href="https://www.yelp.com"><img src={path} width="64"/></a>
+  )  
 }
 

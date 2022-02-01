@@ -30,13 +30,25 @@ export const BusinessSearch = gql`
             location {
                 formatted_address
             }
-            coordinates {
-                latitude
-                longitude
-            }
             hours {
                 hours_type
                 is_open_now
+            }
+        }
+    }
+`
+
+export const ReviewSearch = gql`
+    query ReviewSearch($id: String) {
+        reviews(business: $id) {
+            total
+            review {
+                rating
+                text
+                user {
+                    name
+                    image_url
+                }
             }
         }
     }
