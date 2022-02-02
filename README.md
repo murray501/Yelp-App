@@ -13,7 +13,11 @@
      - create .env file
      - add `REACT_APP_YELP_KEY=(yelp api token) to .env file.
      - npm install
-     - npm run
+     - npm start
+     - http://localhost:3000
 
-### 
+### What are used to build this app?
+    - Apollo client
+    - Bulma CSS
+    - React
 
