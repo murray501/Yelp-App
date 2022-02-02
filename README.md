@@ -1,2 +1,2 @@
-# expert-octo-carnival
-Learning GraphQL and React
+# YELP
+Use YELP GraphQL API https://www.yelp.com/developers/graphql/guides/intro
