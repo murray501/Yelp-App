@@ -44,7 +44,7 @@ export default function Search ({changeTab = f => f}) {
         const {loading, error, data} = useQuery(BasicSearch, {variables: {term, location, offset}});
         
         if (loading) return <p>Loading...</p>;
-        if (error) return <p>Error</p>;
+        if (error) return <p>Error {error}</p>;
     
         setCurrentData(data);
         saveJSON(JSON.stringify(currentTerms), data);

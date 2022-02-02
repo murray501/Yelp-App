@@ -9,7 +9,7 @@ import {
   ApolloProvider,
 } from "@apollo/client";
 
-const token = localStorage.getItem('token');
+const token = process.env.REACT_APP_YELP_KEY;
 const cache = new InMemoryCache();
 const client = new ApolloClient({
   uri: 'http://localhost:8080/https://api.yelp.com/v3/graphql',
